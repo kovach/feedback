@@ -1,9 +1,9 @@
 var D = require('diff');
-var makeEditor = require('../editor/editor');
+var makeEditor = require('../editor/editor').makeMirror;
 var digest = require('./digest');
 
 
-var attach = function(obj, output, input, id) {
+var attach = function(obj, output, input, errorBox, id) {
   var old_content = "";
   obj.add({
     // Send diff to server
@@ -48,8 +48,17 @@ var attach = function(obj, output, input, id) {
           tag: 'set-cursor',
           position: {line: err.line, column: err.column},
         });
+        // Display error
+        errorBox.handle({
+          tag: 'set',
+          val: err.error,
+        });
+      } else {
+        errorBox.handle({
+          tag: 'set',
+          val: '',
+        });
       }
-      //display errors
       //document.getElementById('errors').value = "";
       //_.each(msg.result, function(err) {
       //  document.getElementById('errors').value += err.error;
@@ -58,9 +67,9 @@ var attach = function(obj, output, input, id) {
   });
 }
 
-var makeSyncEditor = function(id, output, input) {
+var makeSyncEditor = function(id, output, input, errorBox) {
   var obj = makeEditor(id);
-  attach(obj, output, input, id);
+  attach(obj, output, input, errorBox, id);
   return obj;
 }
 

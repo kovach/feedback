@@ -23,19 +23,43 @@ var mkKeys = function(o) {
   return extraKeys;
 }
 
+var makeText = function(id) {
+  var o = new obj();
+
+  var elem = document.getElementById(id);
+
+  var editor =
+    CodeMirror.fromTextArea(
+        elem,
+        { value: "",
+          mode:  "markdown", // ???
+          readOnly: true,
+          theme: "solarized light",
+        });
+  editor.setSize(900, "100%");
+
+  o.add({
+    'set': function(msg) {
+      editor.setValue(msg.val);
+    },
+  });
+
+  return o;
+}
+
 var makeMirror = function(id) {
   var o = new obj();
 
   var elem = document.getElementById(id);
 
-  editor =
+  var editor =
     CodeMirror.fromTextArea(
         elem,
         { value: "",
           mode:  "haskell",
           matchBrackets: true,
-          //keyMap: "vim",
-          keyMap: "default",
+          keyMap: "emacs",
+          //keyMap: "default",
           showCursorWhenSelecting: true,
           theme: "solarized dark",
         });
@@ -76,4 +100,7 @@ var makeMirror = function(id) {
   return o;
 }
 
-module.exports = makeMirror;
+module.exports = {
+  makeMirror: makeMirror,
+  makeText: makeText,
+}
