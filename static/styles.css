@@ -1,0 +1,15 @@
+textarea {
+  display: inline;
+  min-width: 400px;
+  min-height: 400px;
+}
+.CodeMirror {
+  border: solid;
+  border-width: 1px;
+  font-size: 11pt;
+  margin: 5px;
+  height: auto;
+  /* min-width: 400px;*/
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
