@@ -1,11 +1,15 @@
 var D = require('diff');
-var makeEditor = require('../editor/editor').makeMirror;
+var makeEditor = require('../editor/editor').makeEditor;
 var digest = require('./digest');
 
 
-var attach = function(obj, output, input, errorBox, id) {
+var attach = function(editor, output, input, error_display, id) {
+  // State
   var old_content = "";
-  obj.add({
+
+  var current_errors = [];
+
+  editor.add({
     // Send diff to server
     'edit': function(msg) {
       var cm = msg.cm;
@@ -26,6 +30,12 @@ var attach = function(obj, output, input, errorBox, id) {
     'special-key': function(msg) {
       switch (msg.key) {
         case 'esc':
+          input.handle({tag: 'move-to-error'});
+          break;
+        case 'tab':
+          //input.handle({tag: 'move-to-error'});
+          break;
+        case 'ctrl-space':
           output.handle({tag: 'run-check'});
           break;
       }
@@ -35,42 +45,68 @@ var attach = function(obj, output, input, errorBox, id) {
   input.add({
     'file': function(msg) {
       old_content = msg.file;
-      obj.handle({
+      editor.handle({
         tag: 'set',
         val: msg.file,
       });
     },
     'check-result': function(msg) {
-      console.log(msg.result);
-      var err = msg.result[0];
-      if (err !== undefined) {
-        obj.handle({
-          tag: 'set-cursor',
-          position: {line: err.line, column: err.column},
-        });
-        // Display error
-        errorBox.handle({
-          tag: 'set',
-          val: err.error,
-        });
-      } else {
-        errorBox.handle({
-          tag: 'set',
-          val: '',
-        });
-      }
+      current_errors = msg.result;
+      current_error = 0;
+      updateErrors(editor.cm, current_errors, error_display);
+      input.handle({tag: 'move-to-error'});
       //document.getElementById('errors').value = "";
       //_.each(msg.result, function(err) {
       //  document.getElementById('errors').value += err.error;
       //});
     },
+    'move-to-error': function(msg) {
+      moveCursorToError(editor, current_errors, ++current_error % current_errors.length);
+    },
   });
 }
 
-var makeSyncEditor = function(id, output, input, errorBox) {
-  var obj = makeEditor(id);
-  attach(obj, output, input, errorBox, id);
-  return obj;
+function makeMarker() {
+  var marker = document.createElement("div");
+  marker.className = 'error-mark';
+  //marker.style.color = "#dc322f";
+  //marker.style.float = 'right';
+  marker.innerHTML = "→";
+  return marker;
+}
+var fixErrorString = function(str) {
+  return str.replace(/\u0000/g, '\n');
+}
+var updateErrors = function(cm, new_errors, error_display) {
+  cm.clearGutter('error-gutter');
+  error_display.handle({
+    tag: 'set',
+    val: '',
+  });
+  _.each(new_errors, function(error) {
+    cm.setGutterMarker(error.line - 1, 'error-gutter', makeMarker());
+    var str = fixErrorString(error.error);
+    error_display.handle({
+      tag: 'append',
+      val: str,
+    });
+  });
+}
+
+var moveCursorToError = function(editor, errors, index) {
+  var error = errors[index];
+  if (error !== undefined) {
+    editor.handle({
+      tag: 'set-cursor',
+      position: {line: error.line, column: error.column},
+    });
+  }
+}
+
+var makeSyncEditor = function(id, output, input, error_display) {
+  var editor = makeEditor(id);
+  attach(editor, output, input, error_display, id);
+  return editor;
 }
 
 module.exports = makeSyncEditor;

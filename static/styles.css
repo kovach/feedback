@@ -1,12 +1,28 @@
 textarea {
 }
+
+/* .CodeMirror-scroll {height: 100%; overflow-y: auto; overflow-x: auto;} */
+
 .CodeMirror {
+  margin: 1px;
+  padding: 0px;
+
   border: solid;
   border-width: 1px;
   font-size: 12pt;
-  margin: 5px;
-  height: auto;
+  float: left;
+  /* height: auto;*/
   /* min-width: 400px;*/
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+
+.error-mark {
+  float: right;
+  color: #dc322f;
+  font-size: 18pt;
+}
+.error-gutter {
+  width: 15px;
+  background: #073642;
 }
