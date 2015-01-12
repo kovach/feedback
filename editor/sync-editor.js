@@ -52,13 +52,9 @@ var attach = function(editor, output, input, error_display, id) {
     },
     'check-result': function(msg) {
       current_errors = msg.result;
-      current_error = 0;
-      updateErrors(editor.cm, current_errors, error_display);
+      current_error = -1;
+      updateErrors(editor, current_errors, error_display);
       input.handle({tag: 'move-to-error'});
-      //document.getElementById('errors').value = "";
-      //_.each(msg.result, function(err) {
-      //  document.getElementById('errors').value += err.error;
-      //});
     },
     'move-to-error': function(msg) {
       moveCursorToError(editor, current_errors, ++current_error % current_errors.length);
@@ -75,16 +71,18 @@ function makeMarker() {
   return marker;
 }
 var fixErrorString = function(str) {
-  return str.replace(/\u0000/g, '\n');
+  return str.replace(/\u0000/g, '\n') + '\n';
 }
-var updateErrors = function(cm, new_errors, error_display) {
-  cm.clearGutter('error-gutter');
+var updateErrors = function(editor, new_errors, error_display) {
+  var cm = editor.cm;
+  var gutter = editor.gutter_name;
+  cm.clearGutter(gutter);
   error_display.handle({
     tag: 'set',
     val: '',
   });
   _.each(new_errors, function(error) {
-    cm.setGutterMarker(error.line - 1, 'error-gutter', makeMarker());
+    cm.setGutterMarker(error.line - 1, gutter, makeMarker());
     var str = fixErrorString(error.error);
     error_display.handle({
       tag: 'append',

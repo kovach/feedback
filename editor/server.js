@@ -8,6 +8,11 @@ var Checker = require('./checker');
 // Global state
 var files = {};
 
+var launchTmux = function() {
+  var name = _.uniqueId();
+  // TODO
+}
+
 var start = function(port, filename) {
   var server = startServer(port);
 
@@ -49,7 +54,6 @@ var start = function(port, filename) {
         'run-check': function(msg) {
           Checker.check(filename).add({
             'done': function(msg) {
-              console.log(msg.out);
               // Send result to client
               output.handle({
                 tag: 'check-result',
@@ -57,7 +61,7 @@ var start = function(port, filename) {
               });
             },
             'err': function(msg) {
-              console.log('check error: ', msg.error);
+              console.log('ghc-mod error: ', msg.error);
             },
           });
         },

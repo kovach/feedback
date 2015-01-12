@@ -22,7 +22,15 @@ textarea {
   color: #dc322f;
   font-size: 18pt;
 }
-.error-gutter {
+.error-gutter-dark {
   width: 15px;
-  background: #073642;
+  /*background: #073642;*/
+  background: #002b36;
+}
+.error-gutter-light {
+  width: 15px;
+  background: #fdf6e3;
+}
+.empty-gutter {
+  width: 0px;
 }

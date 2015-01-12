@@ -18,10 +18,12 @@ obj.prototype.add = function(handlers) {
     obj.handlers[key].push(val);
   });
 }
+
 obj.prototype.add_default = function(handler) {
   var obj = this;
   obj.default.push(handler);
 }
+
 obj.prototype.chain = function(tag, dep) {
   var obj = this;
   var h = {};
